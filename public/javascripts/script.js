@@ -9,6 +9,8 @@
   const tickRate = 100;
   const wrongPenalty = 12;
   const correctBonus = 3;
+  const correctScore = 10;
+  const wrongScorePenalty = 5;
   const storageKey = 'speedie.bestScore';
   let intervalId;
   const assetBase = new URL('../', document.currentScript.src);
@@ -34,6 +36,7 @@
     attempts: 0,
     streak: 0,
     bestStreak: 0,
+    score: 0,
     timeLeft: 300,
     targetColor: null
   };
@@ -101,6 +104,7 @@
     state.attempts = 0;
     state.streak = 0;
     state.bestStreak = 0;
+    state.score = 0;
     state.timeLeft = getStartingTime();
 
     document.body.classList.add('gameStarted');
@@ -168,7 +172,12 @@
       state.streak++;
       state.bestStreak = Math.max(state.bestStreak, state.streak);
       state.timeLeft += correctBonus;
+      state.score += correctScore;
       pulseBox(box, 'hit');
+      pulseStat('.timeCount', 'gain');
+      pulseStat('.scoreCount', 'gain');
+      showStatDelta('.timeCount', `+${correctBonus}`, 'gain');
+      showStatDelta('.scoreCount', `+${correctScore}`, 'gain');
       playAudio(new Audio(assetUrl('audio/correct.mp3')));
 
       if (state.round >= totalRounds) {
@@ -183,7 +192,12 @@
 
     state.streak = 0;
     state.timeLeft = Math.max(0, state.timeLeft - wrongPenalty);
+    state.score = Math.max(0, state.score - wrongScorePenalty);
     pulseBox(box, 'miss');
+    pulseStat('.timeCount', 'loss');
+    pulseStat('.scoreCount', 'loss');
+    showStatDelta('.timeCount', `-${wrongPenalty}`, 'loss');
+    showStatDelta('.scoreCount', `-${wrongScorePenalty}`, 'loss');
     playAudio(new Audio(assetUrl('audio/wrong.mp3')));
     updateHud('Wrong color. Refocus.');
 
@@ -193,7 +207,8 @@
   }
 
   function randomizePositions() {
-    const arenaWidth = playZone.clientWidth;
+    const visibleWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+    const arenaWidth = Math.min(playZone.clientWidth, visibleWidth || playZone.clientWidth);
     const arenaHeight = playZone.clientHeight;
     const placed = [];
 
@@ -227,14 +242,16 @@
 
   function findOpenSpot(arenaWidth, arenaHeight, size, placed) {
     const inset = 12;
+    const rightInset = 72;
     const maxX = Math.max(inset, arenaWidth - size - inset);
+    const safeMaxX = Math.max(inset, maxX - rightInset);
     const maxY = Math.max(inset, arenaHeight - size - inset);
     let candidate = { left: inset, top: inset };
     let attempts = 0;
 
     while (attempts < 80) {
       candidate = {
-        left: randomNumber(inset, maxX),
+        left: randomNumber(inset, safeMaxX),
         top: randomNumber(inset, maxY)
       };
 
@@ -295,9 +312,10 @@
 
   function winGame() {
     finishGame(true);
-    saveHighScore(state.timeLeft);
+    const finalScore = calculateFinalScore();
+    saveHighScore(finalScore);
     playAudio(document.querySelector('#win'));
-    showResult('You won', `Score ${state.timeLeft}. Accuracy ${accuracy()}%. Best streak ${state.bestStreak}.`);
+    showResult('You won', `Final score ${finalScore}. Accuracy ${accuracy()}%. Best streak ${state.bestStreak}.`);
   }
 
   function loseGame() {
@@ -330,12 +348,16 @@
     const progress = Math.min(totalRounds, state.round);
     const progressPercent = (progress / totalRounds) * 100;
 
-    document.querySelector('.scoreCount').textContent = Math.max(0, state.timeLeft);
-    document.querySelector('.roundCount').textContent = `${progress} / ${totalRounds}`;
-    document.querySelector('.streakCount').textContent = state.streak;
-    document.querySelector('.bestScore').textContent = getHighScore();
+    setStatText('.timeCount', Math.max(0, state.timeLeft));
+    setStatText('.scoreCount', state.score);
+    setStatText('.roundCount', `${progress} / ${totalRounds}`);
+    setStatText('.streakCount', state.streak);
     document.querySelector('.statusText').textContent = message || 'Click the box matching the word color.';
     document.querySelector('.progressFill').style.width = `${progressPercent}%`;
+  }
+
+  function calculateFinalScore() {
+    return state.score + Math.max(0, state.timeLeft);
   }
 
   function accuracy() {
@@ -369,6 +391,50 @@
     window.setTimeout(() => {
       box.classList.add(className);
     }, 0);
+  }
+
+  function pulseStat(selector, className) {
+    const stat = document.querySelector(selector);
+
+    if (!stat) {
+      return;
+    }
+
+    stat.classList.remove('gain', 'loss');
+    window.setTimeout(() => {
+      stat.classList.add(className);
+    }, 0);
+  }
+
+  function showStatDelta(selector, text, className) {
+    const statValue = document.querySelector(selector);
+
+    if (!statValue) {
+      return;
+    }
+
+    const delta = document.createElement('span');
+    delta.className = `statDelta ${className}`;
+    delta.textContent = text;
+    statValue.appendChild(delta);
+
+    window.setTimeout(() => {
+      delta.remove();
+    }, 1400);
+  }
+
+  function setStatText(selector, value) {
+    const stat = document.querySelector(selector);
+    const valueNode = stat && stat.querySelector('.statValue');
+
+    if (valueNode) {
+      valueNode.textContent = value;
+      return;
+    }
+
+    if (stat) {
+      stat.textContent = value;
+    }
   }
 
   function shuffle(items) {

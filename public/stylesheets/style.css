@@ -9,6 +9,9 @@
   --pink: #ec4899;
   --orange: #f97316;
   --blue: #2563eb;
+  --green: #16a34a;
+  --red: #ef4444;
+  --amber: #f59e0b;
   --radius: 8px;
 }
 
@@ -23,6 +26,7 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
+  overflow-x: hidden;
   color: var(--ink);
   background:
     linear-gradient(135deg, rgba(20, 184, 166, 0.12), rgba(236, 72, 153, 0.08)),
@@ -232,10 +236,13 @@ button:disabled {
 
 .playPage .siteHeader {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto auto;
   align-items: center;
   gap: 10px;
+  width: 100vw;
+  max-width: 100vw;
   padding: 7px 16px 5px;
+  overflow: hidden;
 }
 
 .playPage .brand {
@@ -243,6 +250,7 @@ button:disabled {
 }
 
 .playPage .navLinks {
+  justify-self: end;
   flex-wrap: nowrap;
   font-size: 13px;
 }
@@ -256,10 +264,12 @@ button:disabled {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   gap: 7px;
-  width: min(1040px, 100%);
+  width: 100vw;
+  max-width: 100vw;
   min-height: 0;
   margin: 0 auto;
   padding: 0 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
 }
 
 .promptPanel,
@@ -280,10 +290,15 @@ button:disabled {
 }
 
 .headerGameControls {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-column: 1 / -1;
+  grid-row: 2;
   align-items: end;
-  justify-content: center;
-  gap: 8px;
+  justify-content: stretch;
+  gap: 5px;
+  width: calc(100vw - 32px);
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -298,7 +313,7 @@ button:disabled {
 }
 
 .difficultyControl.compact {
-  min-width: 138px;
+  min-width: 0;
 }
 
 .difficultyControl.compact span {
@@ -316,17 +331,32 @@ button:disabled {
 }
 
 .gameButtons {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+  min-width: 0;
 }
 
 .gameButtons button {
   min-height: 36px;
-  min-width: 72px;
-  padding: 0 12px;
+  min-width: 0;
+  padding: 0 10px;
+  overflow: hidden;
   font-size: 14px;
+  white-space: nowrap;
+}
+
+#startGame {
+  background: linear-gradient(135deg, var(--green), var(--teal));
+}
+
+#pauseGame {
+  color: #172033;
+  background: linear-gradient(135deg, #facc15, var(--amber));
+}
+
+#restartGame {
+  background: linear-gradient(135deg, var(--pink), #7c3aed);
 }
 
 .promptPanel {
@@ -386,14 +416,14 @@ button:disabled {
 }
 
 .compactHud {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
   padding: 5px;
 }
 
 .stat {
+  position: relative;
   min-width: 0;
   padding: 7px;
   border-radius: var(--radius);
@@ -427,6 +457,9 @@ button:disabled {
 }
 
 .stat strong {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
   margin-top: 2px;
   font-size: clamp(17px, 3.5vw, 22px);
   font-weight: 950;
@@ -435,6 +468,34 @@ button:disabled {
 .compactHud .stat strong {
   margin-top: 0;
   font-size: clamp(15px, 2.6vw, 19px);
+}
+
+.statDelta {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + 6px);
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1;
+  pointer-events: none;
+  transform: translateY(-50%);
+  animation: statDeltaFloat 1400ms ease forwards;
+}
+
+.statDelta.gain {
+  color: var(--green);
+}
+
+.statDelta.loss {
+  color: var(--red);
+}
+
+.stat strong.gain {
+  animation: statGain 900ms ease;
+}
+
+.stat strong.loss {
+  animation: statLoss 900ms ease;
 }
 
 .playZone {
@@ -559,6 +620,60 @@ button:disabled {
   }
 }
 
+@keyframes statGain {
+  0%,
+  100% {
+    color: var(--ink);
+    transform: scale(1);
+  }
+
+  45% {
+    color: var(--teal);
+    transform: scale(1.18);
+  }
+
+  72% {
+    color: var(--teal);
+    transform: scale(1.08);
+  }
+}
+
+@keyframes statLoss {
+  0%,
+  100% {
+    color: var(--ink);
+    transform: scale(1);
+  }
+
+  45% {
+    color: var(--red);
+    transform: scale(1.18);
+  }
+
+  72% {
+    color: var(--red);
+    transform: scale(1.08);
+  }
+}
+
+@keyframes statDeltaFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-2px, -50%) scale(0.9);
+  }
+
+  14%,
+  62% {
+    opacity: 1;
+    transform: translate(0, -50%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(12px, -50%) scale(0.96);
+  }
+}
+
 @media (max-width: 720px) {
   .siteHeader {
     align-items: flex-start;
@@ -572,9 +687,14 @@ button:disabled {
   }
 
   .headerGameControls {
+    display: grid;
+    grid-template-columns: 1fr;
     grid-column: 1 / -1;
     grid-row: 2;
+    align-items: end;
     justify-content: stretch;
+    min-width: 0;
+    width: calc(100vw - 16px);
   }
 
   .navLinks {
@@ -603,19 +723,20 @@ button:disabled {
   }
 
   .difficultyControl.compact {
-    flex: 1 1 140px;
     min-width: 0;
   }
 
   .gameButtons {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    flex: 2 1 240px;
+    min-width: 0;
   }
 
   .gameButtons button {
     min-width: 0;
     padding: 0 10px;
+    overflow: hidden;
+    white-space: nowrap;
   }
 
   .hud {
@@ -624,7 +745,7 @@ button:disabled {
 
   .compactHud {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .compactHud .stat {
@@ -632,6 +753,7 @@ button:disabled {
     gap: 0;
     padding: 4px;
   }
+
 }
 
 @media (max-width: 430px) {
@@ -695,8 +817,29 @@ button:disabled {
     font-size: 12px;
   }
 
+  .statDelta {
+    left: calc(100% + 4px);
+    font-size: 10px;
+  }
+
   .headerGameControls {
+    grid-template-columns: 1fr;
     gap: 5px;
+  }
+
+  .playPage .brand {
+    font-size: 24px;
+  }
+
+  .playPage .navLinks a {
+    padding: 7px 9px;
+  }
+}
+
+@media (max-width: 430px) and (hover: none) and (pointer: coarse) {
+  .playPage .navLinks,
+  #restartGame {
+    display: none;
   }
 }
 

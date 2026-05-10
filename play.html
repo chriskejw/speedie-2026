@@ -13,7 +13,6 @@
     <a class="brand" href="index.html">Speedie</a>
     <div class="headerGameControls" aria-label="Game controls">
       <label class="difficultyControl compact" for="difficultySelect">
-        <span>Difficulty</span>
         <select id="difficultySelect">
           <option value="350">Very easy</option>
           <option value="300" selected>Easy</option>
@@ -29,7 +28,7 @@
       </div>
     </div>
     <nav class="navLinks" aria-label="Main navigation">
-      <a href="instructions.html">How to play</a>
+      <a href="instructions.html">Help</a>
       <a class="navAction" href="index.html">Home</a>
     </nav>
   </header>
@@ -46,20 +45,20 @@
 
     <section class="hud compactHud" aria-label="Game stats">
       <div class="stat">
+        <span>Time</span>
+        <strong class="timeCount"><span class="statValue">300</span></strong>
+      </div>
+      <div class="stat">
         <span>Score</span>
-        <strong class="scoreCount">300</strong>
+        <strong class="scoreCount"><span class="statValue">0</span></strong>
       </div>
       <div class="stat">
         <span>Round</span>
-        <strong class="roundCount">0 / 20</strong>
+        <strong class="roundCount"><span class="statValue">0 / 20</span></strong>
       </div>
       <div class="stat">
         <span>Streak</span>
-        <strong class="streakCount">0</strong>
-      </div>
-      <div class="stat">
-        <span>Best</span>
-        <strong class="bestScore">0</strong>
+        <strong class="streakCount"><span class="statValue">0</span></strong>
       </div>
     </section>
 
