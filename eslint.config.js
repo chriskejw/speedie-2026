@@ -23,6 +23,7 @@ module.exports = [
         require: 'readonly',
         setInterval: 'readonly',
         setTimeout: 'readonly',
+        URL: 'readonly',
         window: 'readonly',
         $: 'readonly'
       }

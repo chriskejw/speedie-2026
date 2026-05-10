@@ -11,6 +11,7 @@
   const correctBonus = 3;
   const storageKey = 'speedie.bestScore';
   let intervalId;
+  const assetBase = new URL('../', document.currentScript.src);
 
   const palette = [
     { name: 'red', value: '#ef4444' },
@@ -161,7 +162,7 @@
       state.bestStreak = Math.max(state.bestStreak, state.streak);
       state.timeLeft += correctBonus;
       pulseBox(box, 'hit');
-      playAudio(new Audio('/audio/correct.mp3'));
+      playAudio(new Audio(assetUrl('audio/correct.mp3')));
 
       if (state.round >= totalRounds) {
         winGame();
@@ -176,7 +177,7 @@
     state.streak = 0;
     state.timeLeft = Math.max(0, state.timeLeft - wrongPenalty);
     pulseBox(box, 'miss');
-    playAudio(new Audio('/audio/wrong.mp3'));
+    playAudio(new Audio(assetUrl('audio/wrong.mp3')));
     updateHud('Wrong color. Refocus.');
 
     if (state.timeLeft <= 0) {
@@ -386,5 +387,9 @@
       audio.pause();
       audio.currentTime = 0;
     }
+  }
+
+  function assetUrl(path) {
+    return new URL(path, assetBase).href;
   }
 })();

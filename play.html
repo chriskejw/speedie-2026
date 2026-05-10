@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Speedie</title>
+  <link rel="stylesheet" href="public/stylesheets/style.css">
+</head>
+
+<body class="playPage">
+  <header class="siteHeader compact">
+    <a class="brand" href="index.html">Speedie</a>
+    <nav class="navLinks" aria-label="Main navigation">
+      <a href="instructions.html">How to play</a>
+      <a class="navAction" href="index.html">Home</a>
+    </nav>
+  </header>
+
+  <main class="gameShell">
+    <section class="gameSetup" aria-label="Game controls">
+      <label class="difficultyControl" for="difficultySelect">
+        <span>Difficulty</span>
+        <select id="difficultySelect">
+          <option value="350">Very easy</option>
+          <option value="300" selected>Easy</option>
+          <option value="250">Medium</option>
+          <option value="200">Hard</option>
+          <option value="150">Very hard</option>
+        </select>
+      </label>
+      <div class="gameButtons">
+        <button id="startGame" type="button">Start</button>
+        <button id="pauseGame" type="button" disabled>Pause</button>
+        <button id="restartGame" type="button">Restart</button>
+      </div>
+    </section>
+
+    <section class="promptPanel" aria-label="Current prompt">
+      <p class="promptLabel">Click the font color</p>
+      <div class="key" aria-live="polite"></div>
+      <p class="statusText">Choose a difficulty, then start.</p>
+      <div class="progressTrack" aria-hidden="true">
+        <div class="progressFill"></div>
+      </div>
+    </section>
+
+    <section class="hud" aria-label="Game stats">
+      <div class="stat">
+        <span>Score</span>
+        <strong class="scoreCount">300</strong>
+      </div>
+      <div class="stat">
+        <span>Round</span>
+        <strong class="roundCount">0 / 20</strong>
+      </div>
+      <div class="stat">
+        <span>Streak</span>
+        <strong class="streakCount">0</strong>
+      </div>
+      <div class="stat">
+        <span>Best</span>
+        <strong class="bestScore">0</strong>
+      </div>
+    </section>
+
+    <section class="playZone" aria-label="Play zone">
+      <button class="clickBox" id="shape1" type="button" aria-label="Color target 1"></button>
+      <button class="clickBox" id="shape2" type="button" aria-label="Color target 2"></button>
+      <button class="clickBox" id="shape3" type="button" aria-label="Color target 3"></button>
+      <button class="clickBox" id="shape4" type="button" aria-label="Color target 4"></button>
+      <button class="clickBox" id="shape5" type="button" aria-label="Color target 5"></button>
+      <button class="clickBox" id="shape6" type="button" aria-label="Color target 6"></button>
+      <button class="clickBox" id="shape7" type="button" aria-label="Color target 7"></button>
+      <button class="clickBox" id="shape8" type="button" aria-label="Color target 8"></button>
+      <button class="clickBox" id="shape9" type="button" aria-label="Color target 9"></button>
+      <button class="clickBox" id="shape10" type="button" aria-label="Color target 10"></button>
+    </section>
+  </main>
+
+  <div class="resultOverlay" hidden>
+    <div class="resultPanel" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+      <h2 id="resultTitle"></h2>
+      <p class="resultMessage"></p>
+      <div class="resultActions">
+        <button class="primary" id="playAgain" type="button">Play again</button>
+        <a class="button secondary" href="index.html">Home</a>
+      </div>
+    </div>
+  </div>
+
+  <audio id="win" src="public/audio/win.mp3" preload="auto"></audio>
+  <audio id="boo" src="public/audio/boo.mp3" preload="auto"></audio>
+  <audio id="clock" src="public/audio/clock.mp3" preload="auto"></audio>
+
+  <script src="public/javascripts/script.js"></script>
+</body>
+
+</html>
