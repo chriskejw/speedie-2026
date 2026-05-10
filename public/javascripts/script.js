@@ -47,6 +47,7 @@
   const clockAudio = document.querySelector('#clock');
 
   state.timeLeft = getStartingTime();
+  syncViewportHeight();
 
   difficulty.addEventListener('change', () => {
     if (state.started) {
@@ -61,7 +62,13 @@
   pauseButton.addEventListener('click', togglePause);
   restartButton.addEventListener('click', restartGame);
   playAgainButton.addEventListener('click', restartGame);
-  window.addEventListener('resize', randomizePositions);
+  window.addEventListener('resize', handleViewportChange);
+  window.addEventListener('orientationchange', handleViewportChange);
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', handleViewportChange);
+    window.visualViewport.addEventListener('scroll', handleViewportChange);
+  }
 
   boxes.forEach((box) => {
     box.addEventListener('click', () => chooseBox(box));
@@ -203,6 +210,19 @@
       box.style.left = `${position.left}px`;
       box.style.top = `${position.top}px`;
     });
+  }
+
+  function handleViewportChange() {
+    window.setTimeout(() => {
+      syncViewportHeight();
+      randomizePositions();
+    }, 80);
+  }
+
+  function syncViewportHeight() {
+    const visualHeight = window.visualViewport && window.visualViewport.height;
+    const height = visualHeight || window.innerHeight || document.documentElement.clientHeight;
+    document.documentElement.style.setProperty('--app-height', `${Math.floor(height)}px`);
   }
 
   function findOpenSpot(arenaWidth, arenaHeight, size, placed) {

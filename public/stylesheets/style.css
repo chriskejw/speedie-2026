@@ -222,9 +222,12 @@ button:disabled {
 .playPage {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
+  min-height: -webkit-fill-available;
   height: 100vh;
   height: 100dvh;
+  height: var(--app-height, 100dvh);
   overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .playPage .siteHeader {
@@ -252,7 +255,7 @@ button:disabled {
   width: min(1040px, 100%);
   min-height: 0;
   margin: 0 auto;
-  padding: 0 16px 12px;
+  padding: 0 16px calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
 .gameSetup,
@@ -397,6 +400,7 @@ button:disabled {
     #ffffff;
   background-size: 42px 42px;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .clickBox {
@@ -539,7 +543,7 @@ button:disabled {
 
   .gameShell {
     gap: 6px;
-    padding: 0 8px 8px;
+    padding: 0 8px calc(8px + env(safe-area-inset-bottom, 0px));
   }
 
   .gameSetup {
@@ -668,5 +672,12 @@ button:disabled {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@supports (height: 100svh) {
+  .playPage {
+    height: 100svh;
+    height: var(--app-height, 100svh);
   }
 }
