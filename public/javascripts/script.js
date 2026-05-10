@@ -1,176 +1,390 @@
-$(document).ready(function() {
+(() => {
+  const playZone = document.querySelector('.playZone');
 
-  // DECLARE THE VARIABLES
-  var roundCount = 0;
-  var totalRounds = 20;
-  var countDown;
-
-  // SELECT DIFFICULTY
-  var count = $(function() {
-    $('select').change(function() {
-      count = $(this).val();
-
-      // if the value selected corresponds with the figure, change difficulty text
-      if (parseInt(count) === 350) {
-        $('.diffDisplay').text('very easy');
-      } else if (parseInt(count) === 300) {
-        $('.diffDisplay').text('easy');
-      } else if (parseInt(count) === 250) {
-        $('.diffDisplay').text('medium');
-      } else if (parseInt(count) === 200) {
-        $('.diffDisplay').text('hard');
-      } else if (parseInt(count) === 150) {
-        $('.diffDisplay').text('very hard');
-      }
-      // trigger the event
-    }).change();
-  });
-
-  // START GAME AND REMOVE THE MENU
-  $('#startGame').on('click', function() {
-    $('.difficulty').remove();
-    $(this).remove();
-    // START MUSIC, TIMER, RANDOM POSITION, RANDOM COLORS, CHECK BOX
-    clockSound();
-    countDownTimer();
-    randomPosition();
-    randomColors();
-    checkBox();
-  });
-
-  // RANDOM POSITION
-  function randomPosition() {
-
-    $('.clickBox').each(function() {
-      var mHeight = parseInt($('main').css('height'));
-      var mWidth = parseInt($('main').css("width"));
-      var randPosY = Math.floor((Math.random() * mHeight));
-      var randPosX = Math.floor((Math.random() * mWidth));
-      $(this).css({
-        left: randPosX,
-        top: randPosY
-      });
-    });
+  if (!playZone) {
+    return;
   }
 
-  // GENERATE RANDOM COLORS
-  function randomColors() {
-    // sort the 7 colors randomly
-    var colorsArray = ["red", "green", "blue", "yellow", "orange", "indigo", "violet"]
-    colorsArray.sort(function() {
-      return Math.random() - 0.5;
-    });
-    // assign a color to each of the 7 shapes
-    $('#shape1').css("background-color", colorsArray[0]);
-    $('#shape2').css("background-color", colorsArray[1]);
-    $('#shape3').css("background-color", colorsArray[2]);
-    $('#shape4').css("background-color", colorsArray[3]);
-    $('#shape5').css("background-color", colorsArray[4]);
-    $('#shape6').css("background-color", colorsArray[5]);
-    $('#shape7').css("background-color", colorsArray[6]);
+  const totalRounds = 20;
+  const tickRate = 100;
+  const wrongPenalty = 12;
+  const correctBonus = 3;
+  const storageKey = 'speedie.bestScore';
+  let intervalId;
 
-    // assign a random word to the key
-    var randomWord = Math.floor((Math.random() * 7));
-    $('.key').text(colorsArray[randomWord]);
+  const palette = [
+    { name: 'red', value: '#ef4444' },
+    { name: 'green', value: '#22c55e' },
+    { name: 'blue', value: '#3b82f6' },
+    { name: 'yellow', value: '#facc15' },
+    { name: 'orange', value: '#f97316' },
+    { name: 'indigo', value: '#4f46e5' },
+    { name: 'violet', value: '#8b5cf6' },
+    { name: 'pink', value: '#ec4899' },
+    { name: 'teal', value: '#14b8a6' },
+    { name: 'slate', value: '#475569' }
+  ];
 
-    // assign a random color to the key
-    var randomWordColor = Math.floor((Math.random() * 7));
-    $('.key').css('color', colorsArray[randomWordColor]).change('class', colorsArray[randomWordColor]);
+  const state = {
+    started: false,
+    paused: false,
+    ended: false,
+    round: 0,
+    attempts: 0,
+    streak: 0,
+    bestStreak: 0,
+    timeLeft: 300,
+    targetColor: null
+  };
+
+  const boxes = Array.from(document.querySelectorAll('.clickBox'));
+  const difficulty = document.querySelector('#difficultySelect');
+  const startButton = document.querySelector('#startGame');
+  const pauseButton = document.querySelector('#pauseGame');
+  const restartButton = document.querySelector('#restartGame');
+  const playAgainButton = document.querySelector('#playAgain');
+  const clockAudio = document.querySelector('#clock');
+
+  state.timeLeft = getStartingTime();
+
+  difficulty.addEventListener('change', () => {
+    if (state.started) {
+      return;
+    }
+
+    state.timeLeft = getStartingTime();
+    updateHud('Choose a difficulty, then start.');
+  });
+
+  startButton.addEventListener('click', startGame);
+  pauseButton.addEventListener('click', togglePause);
+  restartButton.addEventListener('click', restartGame);
+  playAgainButton.addEventListener('click', restartGame);
+  window.addEventListener('resize', randomizePositions);
+
+  boxes.forEach((box) => {
+    box.addEventListener('click', () => chooseBox(box));
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (!state.started || state.ended) {
+      return;
+    }
+
+    const key = event.key.toLowerCase();
+
+    if (key === 'p') {
+      togglePause();
+    }
+
+    if (key === 'r') {
+      restartGame();
+    }
+  });
+
+  prepareBoard();
+  updateHud('Choose a difficulty, then start.');
+
+  function startGame() {
+    state.started = true;
+    state.paused = false;
+    state.ended = false;
+    state.round = 0;
+    state.attempts = 0;
+    state.streak = 0;
+    state.bestStreak = 0;
+    state.timeLeft = getStartingTime();
+
+    document.body.classList.add('gameStarted');
+    playZone.classList.add('gameLive');
+    startButton.disabled = true;
+    pauseButton.disabled = false;
+    pauseButton.textContent = 'Pause';
+    difficulty.disabled = true;
+
+    nextRound();
+    startTimer();
+    playAudio(clockAudio, true);
+    updateHud('Find the matching target.');
   }
 
-  // CHECK IF THE CORRECT BOX IS CLICKED
-  function checkBox() {
-    $('.clickBox').on('click', function() { // add event listener to each box
-      var color = $(this).css('background-color'); // get the background color of the box
-      if (($(this).css('background-color')) !== ($('.key').css('color'))) { // check if the background color matches the key
-        wrongSound(); // if not a match, play wrong sound
-      } else if (($(this).css('background-color')) === ($('.key').css('color'))) { // check if the background color matches the key
-        correctSound(); // if match, play correct sound
-        roundCount++; // plus one to round
-        randomPosition(); // generate random positions again
-        randomColors(); // generate random colors again
-      }
-      if (roundCount === totalRounds) { // if the round count reaches the total rounds, win game
+  function prepareBoard() {
+    boxes.forEach((box, index) => {
+      paintBox(box, palette[index % palette.length]);
+      box.disabled = true;
+    });
+
+    randomizePositions();
+  }
+
+  function nextRound() {
+    const shuffledColors = shuffle([...palette]);
+    const targetBox = boxes[randomNumber(0, boxes.length - 1)];
+    const targetColor = shuffledColors[randomNumber(0, shuffledColors.length - 1)];
+    const decoyColors = shuffle(palette.filter((color) => color.name !== targetColor.name));
+    const wordColor = decoyColors[randomNumber(0, decoyColors.length - 1)];
+
+    state.targetColor = targetColor.name;
+
+    boxes.forEach((box, index) => {
+      paintBox(box, decoyColors[index % decoyColors.length]);
+      box.disabled = false;
+    });
+
+    paintBox(targetBox, targetColor);
+
+    const key = document.querySelector('.key');
+    key.textContent = wordColor.name;
+    key.style.color = targetColor.value;
+    key.dataset.color = targetColor.name;
+
+    randomizePositions();
+    updateHud();
+  }
+
+  function paintBox(box, color) {
+    box.style.backgroundColor = color.value;
+    box.dataset.color = color.name;
+    box.setAttribute('aria-label', `${color.name} target`);
+  }
+
+  function chooseBox(box) {
+    if (!state.started || state.paused || state.ended) {
+      return;
+    }
+
+    state.attempts++;
+
+    if (box.dataset.color === state.targetColor) {
+      state.round++;
+      state.streak++;
+      state.bestStreak = Math.max(state.bestStreak, state.streak);
+      state.timeLeft += correctBonus;
+      pulseBox(box, 'hit');
+      playAudio(new Audio('/audio/correct.mp3'));
+
+      if (state.round >= totalRounds) {
         winGame();
+        return;
       }
-    });
-  }
 
-  // COUNTERDOWN TIMER
-  function countDownTimer() {
-    countDown = setInterval(counter, 100); // start countdown
-  }
+      nextRound();
+      updateHud('Nice. Keep moving.');
+      return;
+    }
 
-  function counter() {
-    count--; // count down
-    $('.timer').text('Score: ' + count); // update and show score
-    if (count < 0) { // if score is less than 0, lose game
+    state.streak = 0;
+    state.timeLeft = Math.max(0, state.timeLeft - wrongPenalty);
+    pulseBox(box, 'miss');
+    playAudio(new Audio('/audio/wrong.mp3'));
+    updateHud('Wrong color. Refocus.');
+
+    if (state.timeLeft <= 0) {
       loseGame();
     }
   }
 
-  // WIN GAME
-  function winGame() {
-    clearInterval(countDown); // clear counter
-    var winAudio = document.getElementById('win'); // play win game sound
-    winAudio.play();
-    stopClockSound();
-    bootbox.alert({ //show win message and score
-      size: 'big',
-      title: 'Bravo! You did it! Well done!',
-      message: 'Your score is ' + count + '.',
-      callback: function() {
-        location.reload()
-      }
-    })
-  };
+  function randomizePositions() {
+    const arenaWidth = playZone.clientWidth;
+    const arenaHeight = playZone.clientHeight;
+    const placed = [];
 
-  // LOSE GAME
-  function loseGame() {
-    clearInterval(countDown); // clear counter
-    $('.timer').text('Score: 0'); // reset score to 0
-    var booAudio = document.getElementById('boo'); // play lose game sound
-    booAudio.play();
-    stopClockSound();
-    bootbox.confirm({ // show lose game message and give an option to restart or go back home
-      message: 'Boo! You are too slow! ',
-      buttons: {
-        confirm: {
-          label: 'Retry',
-          className: 'btn-success'
-        },
-        cancel: {
-          label: 'Give Up',
-          className: 'btn-danger'
-        }
-      },
-      callback: function(result) {
-        if (result === true) {
-          location.reload();
-        } else {
-          window.location.href = "index.html";
-        }
-      }
+    boxes.forEach((box) => {
+      const size = box.offsetWidth;
+      const position = findOpenSpot(arenaWidth, arenaHeight, size, placed);
+
+      placed.push({
+        x: position.left,
+        y: position.top,
+        size
+      });
+
+      box.style.left = `${position.left}px`;
+      box.style.top = `${position.top}px`;
     });
   }
 
-  // AUDIO
-  function stopClockSound() {
-    clock.pause(); // pause sound
-    clock.currentTime = 0; // return soundtrack to 0
+  function findOpenSpot(arenaWidth, arenaHeight, size, placed) {
+    const inset = 12;
+    const maxX = Math.max(inset, arenaWidth - size - inset);
+    const maxY = Math.max(inset, arenaHeight - size - inset);
+    let candidate = { left: inset, top: inset };
+    let attempts = 0;
+
+    while (attempts < 80) {
+      candidate = {
+        left: randomNumber(inset, maxX),
+        top: randomNumber(inset, maxY)
+      };
+
+      if (!overlaps(candidate, size, placed)) {
+        return candidate;
+      }
+
+      attempts++;
+    }
+
+    return candidate;
   }
 
-  function clockSound() {
-    clock.play(); // play sound
+  function overlaps(candidate, size, placed) {
+    return placed.some((box) => {
+      const buffer = 12;
+      return candidate.left < box.x + box.size + buffer &&
+        candidate.left + size + buffer > box.x &&
+        candidate.top < box.y + box.size + buffer &&
+        candidate.top + size + buffer > box.y;
+    });
   }
 
-  function correctSound() {
-    var correct = new Audio('audio/correct.mp3');
-    correct.play(); // play sound
+  function startTimer() {
+    clearInterval(intervalId);
+    intervalId = setInterval(() => {
+      if (state.paused || state.ended) {
+        return;
+      }
+
+      state.timeLeft--;
+      updateHud();
+
+      if (state.timeLeft <= 0) {
+        loseGame();
+      }
+    }, tickRate);
   }
 
-  function wrongSound() {
-    var wrong = new Audio('audio/wrong.mp3');
-    wrong.play(); // play sound
+  function togglePause() {
+    if (!state.started || state.ended) {
+      return;
+    }
+
+    state.paused = !state.paused;
+    pauseButton.textContent = state.paused ? 'Resume' : 'Pause';
+    playZone.classList.toggle('isPaused', state.paused);
+
+    if (state.paused) {
+      pauseAudio(clockAudio);
+      updateHud('Paused');
+      return;
+    }
+
+    playAudio(clockAudio, true);
+    updateHud('Back in motion.');
   }
-});
+
+  function winGame() {
+    finishGame(true);
+    saveHighScore(state.timeLeft);
+    playAudio(document.querySelector('#win'));
+    showResult('You won', `Score ${state.timeLeft}. Accuracy ${accuracy()}%. Best streak ${state.bestStreak}.`);
+  }
+
+  function loseGame() {
+    finishGame(false);
+    playAudio(document.querySelector('#boo'));
+    showResult('Time is up', `You cleared ${state.round} of ${totalRounds} rounds with ${accuracy()}% accuracy.`);
+  }
+
+  function finishGame(didWin) {
+    state.ended = true;
+    state.paused = false;
+    clearInterval(intervalId);
+    stopAudio(clockAudio);
+    boxes.forEach((box) => {
+      box.disabled = true;
+    });
+    pauseButton.disabled = true;
+    playZone.classList.remove('isPaused');
+    playZone.classList.toggle('gameWon', didWin);
+    updateHud(didWin ? 'Finished.' : 'Out of time.');
+  }
+
+  function showResult(title, message) {
+    document.querySelector('#resultTitle').textContent = title;
+    document.querySelector('.resultMessage').textContent = message;
+    document.querySelector('.resultOverlay').hidden = false;
+  }
+
+  function updateHud(message) {
+    const progress = Math.min(totalRounds, state.round);
+    const progressPercent = (progress / totalRounds) * 100;
+
+    document.querySelector('.scoreCount').textContent = Math.max(0, state.timeLeft);
+    document.querySelector('.roundCount').textContent = `${progress} / ${totalRounds}`;
+    document.querySelector('.streakCount').textContent = state.streak;
+    document.querySelector('.bestScore').textContent = getHighScore();
+    document.querySelector('.statusText').textContent = message || 'Click the box matching the word color.';
+    document.querySelector('.progressFill').style.width = `${progressPercent}%`;
+  }
+
+  function accuracy() {
+    if (state.attempts === 0) {
+      return 100;
+    }
+
+    return Math.round((state.round / state.attempts) * 100);
+  }
+
+  function getStartingTime() {
+    return parseInt(difficulty.value, 10) || 300;
+  }
+
+  function getHighScore() {
+    return parseInt(window.localStorage.getItem(storageKey), 10) || 0;
+  }
+
+  function saveHighScore(score) {
+    if (score > getHighScore()) {
+      window.localStorage.setItem(storageKey, score);
+    }
+  }
+
+  function restartGame() {
+    window.location.reload();
+  }
+
+  function pulseBox(box, className) {
+    box.classList.remove('hit', 'miss');
+    window.setTimeout(() => {
+      box.classList.add(className);
+    }, 0);
+  }
+
+  function shuffle(items) {
+    for (let index = items.length - 1; index > 0; index--) {
+      const swapIndex = randomNumber(0, index);
+      const temp = items[index];
+      items[index] = items[swapIndex];
+      items[swapIndex] = temp;
+    }
+
+    return items;
+  }
+
+  function randomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function playAudio(audio, loop) {
+    if (!audio) {
+      return;
+    }
+
+    audio.loop = Boolean(loop);
+    audio.currentTime = 0;
+    audio.play().catch(() => undefined);
+  }
+
+  function pauseAudio(audio) {
+    if (audio) {
+      audio.pause();
+    }
+  }
+
+  function stopAudio(audio) {
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  }
+})();

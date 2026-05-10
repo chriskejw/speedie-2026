@@ -1,27 +1,26 @@
 {
-  "name": "speedie",
-  "version": "1.0.0",
-  "description": "Title",
+  "name": "speedie-2026",
+  "version": "2.0.0",
+  "description": "Speedie reaction game modernized for 2026",
   "main": "app.js",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
-    "ejs": "^2.5.2",
-    "express": "^4.14.0",
-    "method-override": "^2.3.6",
-    "nodemon": "^1.11.0"
+    "ejs": "^3.1.10",
+    "express": "^5.1.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^9.26.0",
+    "jest": "^30.0.0",
+    "nodemon": "^3.1.10",
+    "prettier": "^3.5.3",
+    "supertest": "^7.1.1"
+  },
   "scripts": {
-    "start": "nodemon app",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/chriskejw/speedie.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/chriskejw/speedie/issues"
-  },
-  "homepage": "https://github.com/chriskejw/speedie#readme"
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "jest --runInBand",
+    "lint": "eslint app.js routes/**/*.js public/javascripts/**/*.js"
+  }
 }

@@ -1,78 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="utf-8">
-  <title>speedie</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="stylesheets/style.css">
+  <title>Play Speedie</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 
-<body>
-
-  <header>
-    <h4 class="diffDisplay"></h4>
-    <h1 class="timer">speedie</h1>
-    <div class="select">click the font color of the word</div>
-    <div class="key"></div>
-    <div class="dropdown">
-      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-          Options
-          <span class="caret"></span>
-        </button>
-      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-        <li><a href="/">Home</a></li>
-        <li><a href="/instructions.html">How To Play</a></li>
-        <li><a href="/howwasitmade.html">How Was It Made</a></li>
-        <li><a href="http://html5games.com/">More games</a></li>
-      </ul>
-    </div>
+<body class="playPage">
+  <header class="siteHeader compact">
+    <a class="brand" href="/">Speedie</a>
+    <nav class="navLinks" aria-label="Main navigation">
+      <a href="/instructions">How to play</a>
+      <a class="navAction" href="/">Home</a>
+    </nav>
   </header>
 
-  <div class="nav1">
-  </div>
-
-  <main>
-    <div class="difficulty">
-      <h4>Select Difficulty:</h4>
-      <select class="form-control">
-          <option value=350>You shouldn't lose!</option>
-          <option value=300>Easy Peasy!</option>
-          <option value=250>Now we're talking</option>
-          <option value=200>Good luck!</option>
-          <option value=150>You're outta your mind!</option>
+  <main class="gameShell">
+    <section class="gameSetup" aria-label="Game controls">
+      <label class="difficultyControl" for="difficultySelect">
+        <span>Difficulty</span>
+        <select id="difficultySelect">
+          <option value="350">Very easy</option>
+          <option value="300" selected>Easy</option>
+          <option value="250">Medium</option>
+          <option value="200">Hard</option>
+          <option value="150">Very hard</option>
         </select>
-    </div>
-    <button id="startGame" type="button" class="btn btn-success">Start Game</button>
-    <div class="clickBox" id="shape1"></div>
-    <div class="clickBox" id="shape2"></div>
-    <div class="clickBox" id="shape3"></div>
-    <div class="clickBox" id="shape4"></div>
-    <div class="clickBox" id="shape5"></div>
-    <div class="clickBox" id="shape6"></div>
-    <div class="clickBox" id="shape7"></div>
-    <div class="clickBox" id="shape8"></div>
-    <div class="clickBox" id="shape9"></div>
-    <div class="clickBox" id="shape10"></div>
+      </label>
+      <div class="gameButtons">
+        <button id="startGame" type="button">Start</button>
+        <button id="pauseGame" type="button" disabled>Pause</button>
+        <button id="restartGame" type="button">Restart</button>
+      </div>
+    </section>
+
+    <section class="promptPanel" aria-label="Current prompt">
+      <p class="promptLabel">Click the font color</p>
+      <div class="key" aria-live="polite"></div>
+      <p class="statusText">Choose a difficulty, then start.</p>
+      <div class="progressTrack" aria-hidden="true">
+        <div class="progressFill"></div>
+      </div>
+    </section>
+
+    <section class="hud" aria-label="Game stats">
+      <div class="stat">
+        <span>Score</span>
+        <strong class="scoreCount">300</strong>
+      </div>
+      <div class="stat">
+        <span>Round</span>
+        <strong class="roundCount">0 / 20</strong>
+      </div>
+      <div class="stat">
+        <span>Streak</span>
+        <strong class="streakCount">0</strong>
+      </div>
+      <div class="stat">
+        <span>Best</span>
+        <strong class="bestScore">0</strong>
+      </div>
+    </section>
+
+    <section class="playZone" aria-label="Play zone">
+      <button class="clickBox" id="shape1" type="button" aria-label="Color target 1"></button>
+      <button class="clickBox" id="shape2" type="button" aria-label="Color target 2"></button>
+      <button class="clickBox" id="shape3" type="button" aria-label="Color target 3"></button>
+      <button class="clickBox" id="shape4" type="button" aria-label="Color target 4"></button>
+      <button class="clickBox" id="shape5" type="button" aria-label="Color target 5"></button>
+      <button class="clickBox" id="shape6" type="button" aria-label="Color target 6"></button>
+      <button class="clickBox" id="shape7" type="button" aria-label="Color target 7"></button>
+      <button class="clickBox" id="shape8" type="button" aria-label="Color target 8"></button>
+      <button class="clickBox" id="shape9" type="button" aria-label="Color target 9"></button>
+      <button class="clickBox" id="shape10" type="button" aria-label="Color target 10"></button>
+    </section>
   </main>
 
-  <div class="nav2">
+  <div class="resultOverlay" hidden>
+    <div class="resultPanel" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+      <h2 id="resultTitle"></h2>
+      <p class="resultMessage"></p>
+      <div class="resultActions">
+        <button class="primary" id="playAgain" type="button">Play again</button>
+        <a class="button secondary" href="/">Home</a>
+      </div>
+    </div>
   </div>
 
-  <audio id="win" src="audio/win.mp3" preload="auto"></audio>
-  <audio id="boo" src="audio/boo.mp3" preload="auto"></audio>
-  <audio id="clock" src="audio/clock.mp3" preload="auto"></audio>
+  <audio id="win" src="/audio/win.mp3" preload="auto"></audio>
+  <audio id="boo" src="/audio/boo.mp3" preload="auto"></audio>
+  <audio id="clock" src="/audio/clock.mp3" preload="auto"></audio>
 
-  <footer id="playFooter">
-    Created by <strong>Chris Ke</strong> - <img src='images/gaLogo.png'> General Assembly Singapore - WDI 6
-  </footer>
-
+  <script src="/javascripts/script.js"></script>
 </body>
-<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
-<script src="javascripts/script.js" type="text/javascript"></script>
 
 </html>

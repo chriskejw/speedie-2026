@@ -1,25 +1,29 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
 
-// app.get = GET request on the localhost 4000 (listening to a GET request)
-// On the localhost render(load) the index page
+const router = express.Router();
 
-// setting the route to homepage
-// use router.get instead
-router.get('/', function(req, res) {
+router.get('/', (req, res) => {
   res.render('index');
 });
 
-router.get('/howwasitmade.html', function(req, res) {
-  res.render('howwasitmade');
-});
-
-router.get('/instructions.html', function(req, res) {
+router.get('/instructions', (req, res) => {
   res.render('instructions');
 });
 
-router.get('/play.html', function(req, res) {
+router.get('/play', (req, res) => {
   res.render('play');
+});
+
+router.get('/howwasitmade.html', (req, res) => {
+  res.redirect(301, '/instructions');
+});
+
+router.get('/instructions.html', (req, res) => {
+  res.redirect(301, '/instructions');
+});
+
+router.get('/play.html', (req, res) => {
+  res.redirect(301, '/play');
 });
 
 module.exports = router;
