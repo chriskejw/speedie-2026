@@ -11,15 +11,8 @@
 <body class="playPage">
   <header class="siteHeader compact">
     <a class="brand" href="index.html">Speedie</a>
-    <nav class="navLinks" aria-label="Main navigation">
-      <a href="instructions.html">How to play</a>
-      <a class="navAction" href="index.html">Home</a>
-    </nav>
-  </header>
-
-  <main class="gameShell">
-    <section class="gameSetup" aria-label="Game controls">
-      <label class="difficultyControl" for="difficultySelect">
+    <div class="headerGameControls" aria-label="Game controls">
+      <label class="difficultyControl compact" for="difficultySelect">
         <span>Difficulty</span>
         <select id="difficultySelect">
           <option value="350">Very easy</option>
@@ -34,8 +27,14 @@
         <button id="pauseGame" type="button" disabled>Pause</button>
         <button id="restartGame" type="button">Restart</button>
       </div>
-    </section>
+    </div>
+    <nav class="navLinks" aria-label="Main navigation">
+      <a href="instructions.html">How to play</a>
+      <a class="navAction" href="index.html">Home</a>
+    </nav>
+  </header>
 
+  <main class="gameShell">
     <section class="promptPanel" aria-label="Current prompt">
       <p class="promptLabel">Click the font color</p>
       <div class="key" aria-live="polite"></div>
@@ -45,7 +44,7 @@
       </div>
     </section>
 
-    <section class="hud" aria-label="Game stats">
+    <section class="hud compactHud" aria-label="Game stats">
       <div class="stat">
         <span>Score</span>
         <strong class="scoreCount">300</strong>

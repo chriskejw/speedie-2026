@@ -231,11 +231,15 @@ button:disabled {
 }
 
 .playPage .siteHeader {
-  padding: 8px 16px 6px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 16px 5px;
 }
 
 .playPage .brand {
-  font-size: clamp(24px, 5vw, 34px);
+  font-size: clamp(23px, 4vw, 32px);
 }
 
 .playPage .navLinks {
@@ -250,15 +254,14 @@ button:disabled {
 
 .gameShell {
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
-  gap: 8px;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 7px;
   width: min(1040px, 100%);
   min-height: 0;
   margin: 0 auto;
   padding: 0 16px calc(12px + env(safe-area-inset-bottom, 0px));
 }
 
-.gameSetup,
 .promptPanel,
 .hud,
 .playZone {
@@ -276,6 +279,14 @@ button:disabled {
   padding: 8px;
 }
 
+.headerGameControls {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+}
+
 .difficultyControl {
   display: grid;
   gap: 4px;
@@ -286,9 +297,17 @@ button:disabled {
   text-transform: uppercase;
 }
 
+.difficultyControl.compact {
+  min-width: 138px;
+}
+
+.difficultyControl.compact span {
+  font-size: 10px;
+}
+
 .difficultyControl select {
   width: 100%;
-  min-height: 38px;
+  min-height: 36px;
   padding: 0 14px;
   color: var(--ink);
   border: 1px solid var(--line);
@@ -298,21 +317,23 @@ button:disabled {
 
 .gameButtons {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
 
 .gameButtons button {
-  min-height: 38px;
-  min-width: 92px;
+  min-height: 36px;
+  min-width: 72px;
+  padding: 0 12px;
+  font-size: 14px;
 }
 
 .promptPanel {
   display: grid;
   gap: 4px;
   justify-items: center;
-  padding: 8px;
+  padding: 7px 8px;
   text-align: center;
 }
 
@@ -364,12 +385,29 @@ button:disabled {
   padding: 6px;
 }
 
+.compactHud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px;
+}
+
 .stat {
   min-width: 0;
   padding: 7px;
   border-radius: var(--radius);
   background: #f8fafc;
   text-align: center;
+}
+
+.compactHud .stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 0;
+  padding: 5px 8px;
 }
 
 .stat span,
@@ -384,10 +422,19 @@ button:disabled {
   text-transform: uppercase;
 }
 
+.compactHud .stat span {
+  font-size: 10px;
+}
+
 .stat strong {
   margin-top: 2px;
   font-size: clamp(17px, 3.5vw, 22px);
   font-weight: 950;
+}
+
+.compactHud .stat strong {
+  margin-top: 0;
+  font-size: clamp(15px, 2.6vw, 19px);
 }
 
 .playZone {
@@ -519,8 +566,15 @@ button:disabled {
   }
 
   .playPage .siteHeader {
+    grid-template-columns: auto 1fr;
     align-items: center;
-    padding: 8px 10px 6px;
+    padding: 6px 8px 5px;
+  }
+
+  .headerGameControls {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: stretch;
   }
 
   .navLinks {
@@ -529,6 +583,8 @@ button:disabled {
   }
 
   .playPage .navLinks {
+    grid-column: 2;
+    grid-row: 1;
     gap: 4px;
     font-size: 12px;
   }
@@ -546,16 +602,15 @@ button:disabled {
     padding: 0 8px calc(8px + env(safe-area-inset-bottom, 0px));
   }
 
-  .gameSetup {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 6px;
-    padding: 7px;
+  .difficultyControl.compact {
+    flex: 1 1 140px;
+    min-width: 0;
   }
 
   .gameButtons {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    flex: 2 1 240px;
   }
 
   .gameButtons button {
@@ -566,6 +621,17 @@ button:disabled {
   .hud {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .compactHud {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .compactHud .stat {
+    display: grid;
+    gap: 0;
+    padding: 4px;
+  }
 }
 
 @media (max-width: 430px) {
@@ -575,8 +641,7 @@ button:disabled {
   }
 
   .playPage .siteHeader {
-    flex-direction: row;
-    gap: 8px;
+    gap: 5px;
   }
 
   .navLinks {
@@ -626,7 +691,12 @@ button:disabled {
 
   .gameButtons button {
     min-height: 36px;
-    font-size: 13px;
+    padding: 0 6px;
+    font-size: 12px;
+  }
+
+  .headerGameControls {
+    gap: 5px;
   }
 }
 
@@ -636,7 +706,6 @@ button:disabled {
     padding-bottom: 4px;
   }
 
-  .gameSetup,
   .promptPanel {
     padding: 6px;
   }
