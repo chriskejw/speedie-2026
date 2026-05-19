@@ -12,6 +12,7 @@
   const correctScore = 10;
   const wrongScorePenalty = 5;
   const storageKey = 'speedie.bestScore';
+  const mutedStorageKey = 'speedie.soundMuted';
   let intervalId;
   const assetBase = new URL('../', document.currentScript.src);
 
@@ -38,7 +39,8 @@
     bestStreak: 0,
     score: 0,
     timeLeft: 300,
-    targetColor: null
+    targetColor: null,
+    muted: window.localStorage.getItem(mutedStorageKey) === 'true'
   };
 
   const boxes = Array.from(document.querySelectorAll('.clickBox'));
@@ -47,6 +49,7 @@
   const pauseButton = document.querySelector('#pauseGame');
   const restartButton = document.querySelector('#restartGame');
   const playAgainButton = document.querySelector('#playAgain');
+  const soundToggle = document.querySelector('#soundToggle');
   const clockAudio = document.querySelector('#clock');
 
   state.timeLeft = getStartingTime();
@@ -65,6 +68,7 @@
   pauseButton.addEventListener('click', togglePause);
   restartButton.addEventListener('click', restartGame);
   playAgainButton.addEventListener('click', restartGame);
+  soundToggle.addEventListener('click', toggleSound);
   window.addEventListener('resize', handleViewportChange);
   window.addEventListener('orientationchange', handleViewportChange);
 
@@ -94,6 +98,7 @@
   });
 
   prepareBoard();
+  updateSoundToggle();
   updateHud('Choose a difficulty, then start.');
 
   function startGame() {
@@ -386,6 +391,27 @@
     window.location.reload();
   }
 
+  function toggleSound() {
+    state.muted = !state.muted;
+    window.localStorage.setItem(mutedStorageKey, String(state.muted));
+    updateSoundToggle();
+
+    if (state.muted) {
+      stopAudio(clockAudio);
+      return;
+    }
+
+    if (state.started && !state.paused && !state.ended) {
+      playAudio(clockAudio, true);
+    }
+  }
+
+  function updateSoundToggle() {
+    soundToggle.setAttribute('aria-pressed', String(state.muted));
+    soundToggle.setAttribute('aria-label', state.muted ? 'Turn sound on' : 'Mute sound');
+    soundToggle.title = state.muted ? 'Turn sound on' : 'Mute sound';
+  }
+
   function pulseBox(box, className) {
     box.classList.remove('hit', 'miss');
     window.setTimeout(() => {
@@ -453,7 +479,7 @@
   }
 
   function playAudio(audio, loop) {
-    if (!audio) {
+    if (!audio || state.muted) {
       return;
     }
 

@@ -4,13 +4,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Play Speedie, a fast reaction color challenge.">
+  <meta property="og:title" content="Play Speedie">
+  <meta property="og:description" content="Click the color of the word before time runs out.">
+  <meta property="og:image" content="assets/social/og-image-1200x630.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#101827">
+  <meta name="msapplication-TileColor" content="#101827">
+  <meta name="msapplication-TileImage" content="assets/icons/mstile-150x150.png">
   <title>Play Speedie</title>
+  <link rel="icon" href="assets/favicon/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="assets/favicon/favicon-48x48.png">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="assets/site.webmanifest">
   <link rel="stylesheet" href="public/stylesheets/style.css">
 </head>
 
 <body class="playPage">
   <header class="siteHeader compact">
-    <a class="brand" href="index.html">Speedie</a>
+    <a class="brand" href="index.html" aria-label="Speedie home">
+      <img src="assets/logo/speedie-logo-transparent.png" alt="Speedie">
+    </a>
     <div class="headerGameControls" aria-label="Game controls">
       <label class="difficultyControl compact" for="difficultySelect">
         <select id="difficultySelect">
@@ -29,6 +46,18 @@
     </div>
     <nav class="navLinks" aria-label="Main navigation">
       <a href="instructions.html">Help</a>
+      <button class="soundToggle" id="soundToggle" type="button" aria-label="Mute sound" aria-pressed="false">
+        <svg class="soundIcon soundIconOn" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
+          <path d="M15.5 8.5a5 5 0 0 1 0 7"></path>
+          <path d="M18.5 5.5a9 9 0 0 1 0 13"></path>
+        </svg>
+        <svg class="soundIcon soundIconOff" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M11 5 6 9H3v6h3l5 4V5Z"></path>
+          <path d="m16 9 5 5"></path>
+          <path d="m21 9-5 5"></path>
+        </svg>
+      </button>
       <a class="navAction" href="index.html">Home</a>
     </nav>
   </header>

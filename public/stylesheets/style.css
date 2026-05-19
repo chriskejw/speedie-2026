@@ -100,9 +100,16 @@ button:disabled {
 }
 
 .brand {
-  font-size: clamp(28px, 7vw, 48px);
-  font-weight: 950;
-  letter-spacing: 0;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.brand img {
+  display: block;
+  width: auto;
+  height: clamp(34px, 8vw, 58px);
+  object-fit: contain;
 }
 
 .navLinks {
@@ -118,6 +125,45 @@ button:disabled {
 .navLinks a {
   padding: 10px 12px;
   border-radius: var(--radius);
+}
+
+.soundToggle {
+  position: relative;
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.soundToggle:hover,
+.soundToggle:focus-visible {
+  color: var(--ink);
+  background: #ffffff;
+}
+
+.soundIcon {
+  position: absolute;
+  inset: 9px;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+
+.soundIconOff {
+  display: none;
+}
+
+.soundToggle[aria-pressed="true"] .soundIconOn {
+  display: none;
+}
+
+.soundToggle[aria-pressed="true"] .soundIconOff {
+  display: block;
 }
 
 .navLinks a:hover,
@@ -141,6 +187,7 @@ button:disabled {
 
 .heroPanel,
 .rulesPanel {
+  position: relative;
   width: min(880px, 100%);
   padding: clamp(28px, 7vw, 72px);
   border: 1px solid var(--line);
@@ -246,7 +293,11 @@ button:disabled {
 }
 
 .playPage .brand {
-  font-size: clamp(23px, 4vw, 32px);
+  min-width: 0;
+}
+
+.playPage .brand img {
+  height: clamp(28px, 5vw, 38px);
 }
 
 .playPage .navLinks {
@@ -258,6 +309,17 @@ button:disabled {
 .playPage .navLinks a {
   padding: 8px 10px;
   white-space: nowrap;
+}
+
+.playPage .soundToggle {
+  width: 36px;
+  min-height: 36px;
+}
+
+.playPage .soundIcon {
+  inset: 8px;
+  width: 20px;
+  height: 20px;
 }
 
 .gameShell {
@@ -717,6 +779,15 @@ button:disabled {
     padding: 7px 8px;
   }
 
+  .playPage .soundToggle {
+    width: 34px;
+    min-height: 34px;
+  }
+
+  .playPage .soundIcon {
+    inset: 7px;
+  }
+
   .gameShell {
     gap: 6px;
     padding: 0 8px calc(8px + env(safe-area-inset-bottom, 0px));
@@ -828,7 +899,11 @@ button:disabled {
   }
 
   .playPage .brand {
-    font-size: 24px;
+    min-width: 0;
+  }
+
+  .playPage .brand img {
+    height: 30px;
   }
 
   .playPage .navLinks a {
@@ -837,8 +912,12 @@ button:disabled {
 }
 
 @media (max-width: 430px) and (hover: none) and (pointer: coarse) {
-  .playPage .navLinks,
   #restartGame {
+    display: none;
+  }
+
+  .playPage .navLinks a[href="/instructions"],
+  .playPage .navLinks a[href="instructions.html"] {
     display: none;
   }
 }
